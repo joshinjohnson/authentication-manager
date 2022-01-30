@@ -6,4 +6,5 @@ var (
 	ErrInternalServer = "internal server error"
 	ErrRegistration   = "error occurred while registering user"
 	ErrLogin          = "error occurred logging"
+	ErrInvalidToken   = "invalid token received"
 )

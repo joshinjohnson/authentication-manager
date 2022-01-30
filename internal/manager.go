@@ -114,13 +114,21 @@ func (m *Manager) RegisterHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(msg)
 }
 
+func (m *Manager) HomeHandler(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    msg, _ := json.Marshal(outputModel.HomeSuccessResponse{
+        Message: "Home",
+    })
+    w.Write(msg)
+}
+
 func (m Manager) VerifyTokenMiddleware(handler http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         token, ok := r.Header[tokenField]
         if ok {
             if isAuthenticToken, err := m.TokenGeneratorEngine.VerifyToken(token[0], privateKey); err != nil || !isAuthenticToken {
-                w.WriteHeader(http.StatusUnauthorized)
-                w.Write([]byte("Invalid token received"))
+                w.WriteHeader(http.StatusBadRequest)
+                w.Write([]byte(errors.ErrInvalidToken))
                 return
             }
         }
