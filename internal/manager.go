@@ -50,7 +50,7 @@ func (m *Manager) LoginHandler(w http.ResponseWriter, r *http.Request) {
     _, err := m.AuthenticationEngine.Authenticate(cred)
     if err != nil {
         w.WriteHeader(http.StatusUnauthorized)
-        w.Write([]byte(errors.ErrUnauthorized))
+        w.Write([]byte(fmt.Sprintf(errors.ErrLogin+": %v", err.Error())))
         return
     }
     token := m.getToken(cred)
@@ -70,11 +70,9 @@ func (m *Manager) RegisterHandler(w http.ResponseWriter, r *http.Request) {
     pass, passOK := r.Header[passwordHash]
     fname, fnameOK := r.Header[fnameField]
     lname, lnameOK := r.Header[lnameField]
-    dob, dobOK := r.Header[dobField]
 
-    if !emailOK || !passOK || !fnameOK || !lnameOK || !dobOK ||
-        len(email) == 0 || len(pass) == 0 || len(fname) == 0 ||
-        len(lname) == 0 || len(dob) == 0 {
+    if !emailOK || !passOK || !fnameOK || !lnameOK ||
+        len(email) == 0 || len(pass) == 0 || len(fname) == 0 || len(lname) == 0 {
         w.WriteHeader(http.StatusBadRequest)
         w.Write([]byte(errors.ErrBadRequest))
         return
@@ -84,16 +82,16 @@ func (m *Manager) RegisterHandler(w http.ResponseWriter, r *http.Request) {
         Email:    email[0],
         Password: pass[0],
     }
-    dobT, _ := time.Parse(timeLayout, dob[0])
+    //dobT, _ := time.Parse(timeLayout, dob[0])
     detail := models.UserDetails{
-        FirstName:   fname[0],
-        LastName:    lname[0],
-        DateOfBirth: dobT,
+        FirstName: fname[0],
+        LastName:  lname[0],
+        //DateOfBirth: dobT,
     }
 
     if err := m.AuthenticationEngine.Register(cred, detail); err != nil {
-        w.WriteHeader(http.StatusUnauthorized)
-        w.Write([]byte(errors.ErrUnauthorized))
+        w.WriteHeader(http.StatusInternalServerError)
+        w.Write([]byte(fmt.Sprintf(errors.ErrRegistration+": %v", err.Error())))
         return
     }
     token := m.getToken(cred)

@@ -3,7 +3,16 @@ run:
 	go run main/main.go
 
 register:
-	curl --data "Email=value1&Password-Hash=value2&First-Name=asd&Last-Name=asd" localhost:9090/register
+	curl -X POST \
+          http://localhost:9090/register \
+		  -H 'email: ${Email}' \
+		  -H 'password-hash: ${Password-Hash}' \
+		  -H 'first-name: ${First-Name}' \
+		  -H 'last-name: ${Last-Name}'
+
 
 login:
-	curl --data "Email=value1&Password-Hash=value2" localhost:9090/login
+	curl -X POST \
+          http://localhost:9090/login \
+          -H 'email: ${Email}' \
+          -H 'password-hash: ${Password-Hash}'
