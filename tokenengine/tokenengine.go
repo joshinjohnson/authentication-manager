@@ -12,13 +12,16 @@ import (
 	"strings"
 )
 
+const (
+	algorithm = "HS256"
+)
+
 type TokenGeneratorEngine struct {
 	Log log.Logger
 }
 
 func (tm TokenGeneratorEngine) TokenGeneratorFunc() func(cred models.UserCredential, payload map[string]string, privateKey string) string {
 	return func(cred models.UserCredential, payload map[string]string, privateKey string) string {
-		header := cred.Email
 		h := hmac.New(sha256.New, []byte(privateKey))
 		payloadStr, err := json.Marshal(payload)
 		if err != nil {
@@ -27,10 +30,10 @@ func (tm TokenGeneratorEngine) TokenGeneratorFunc() func(cred models.UserCredent
 		}
 
 		payload64 := base64.StdEncoding.EncodeToString(payloadStr)
-		header64 := base64.StdEncoding.EncodeToString([]byte(header))
+		header64 := base64.StdEncoding.EncodeToString([]byte(algorithm))
 		message := header64 + "." + payload64
 
-		unsignedStr := header + string(payloadStr)
+		unsignedStr := algorithm + string(payloadStr)
 		h.Write([]byte(unsignedStr))
 		signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
 

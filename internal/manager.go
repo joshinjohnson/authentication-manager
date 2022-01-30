@@ -1,11 +1,13 @@
 package internal
 
 import (
+    "encoding/json"
     "fmt"
     "github.com/joshinjohnson/authentication-engine/pkg/api"
     "github.com/joshinjohnson/authentication-engine/pkg/models"
-    "github.com/joshinjohnson/authentication-manager/internal/tokenengine"
     "github.com/joshinjohnson/authentication-manager/pkg/errors"
+    outputModel "github.com/joshinjohnson/authentication-manager/pkg/models"
+    "github.com/joshinjohnson/authentication-manager/tokenengine"
     "net/http"
     "time"
 )
@@ -61,8 +63,11 @@ func (m *Manager) LoginHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     w.WriteHeader(http.StatusOK)
-    w.Header().Add(tokenField, token)
-    w.Write([]byte("User logged in"))
+    msg, _ := json.Marshal(outputModel.LoginSuccessResponse{
+        Message: "user logged in",
+        Token:   token,
+    })
+    w.Write(msg)
 }
 
 func (m *Manager) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -102,8 +107,11 @@ func (m *Manager) RegisterHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     w.WriteHeader(http.StatusOK)
-    w.Header().Add(tokenField, token)
-    w.Write([]byte("User created"))
+    msg, _ := json.Marshal(outputModel.LoginSuccessResponse{
+        Message: "user registered",
+        Token:   token,
+    })
+    w.Write(msg)
 }
 
 func (m Manager) VerifyTokenMiddleware(handler http.Handler) http.Handler {
